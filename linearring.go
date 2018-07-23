@@ -1,5 +1,7 @@
 package geom
 
+import "math"
+
 // A LinearRing is a linear ring.
 type LinearRing struct {
 	geom1
@@ -62,4 +64,45 @@ func (lr *LinearRing) SetSRID(srid int) *LinearRing {
 // Swap swaps the values of lr and lr2.
 func (lr *LinearRing) Swap(lr2 *LinearRing) {
 	*lr, *lr2 = *lr2, *lr
+}
+
+// ContainCoord checks if LinearRing contains Coord.
+func (lr *LinearRing) ContainCoord(pt *Coord) bool {
+	// Cast ray from pt.X towards the right
+	intersections := 0
+	c := lr.Coords()
+	for i := range c {
+		curr := c[i]
+		ii := i + 1
+		if ii == len(c) {
+			continue
+		}
+		next := c[ii]
+
+		// Is the point out of the edge's bounding box?
+		// bottom vertex is inclusive (belongs to edge), top vertex is
+		// exclusive (not part of edge) -- i.e. p lies "slightly above
+		// the ray"
+		bottom, top := curr, next
+		if bottom.Y() > top.Y() {
+			bottom, top = top, bottom
+		}
+		if pt.Y() < bottom.Y() || pt.Y() >= top.Y() {
+			continue
+		}
+		// Edge is from curr to next.
+
+		if pt.X() >= math.Max(curr.X(), next.X()) ||
+			next.Y() == curr.Y() {
+			continue
+		}
+
+		// Find where the line intersects...
+		xint := (pt.Y()-curr.Y())*(next.X()-curr.X())/(next.Y()-curr.Y()) + curr.X()
+		if curr.X() != next.X() && pt.X() > xint {
+			continue
+		}
+		intersections++
+	}
+	return intersections%2 != 0
 }

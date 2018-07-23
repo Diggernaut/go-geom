@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strconv"
 
-	"github.com/twpayne/go-geom"
+	"github.com/Diggernaut/go-geom"
 )
 
 // Marshal marshals an arbitrary geometry.

@@ -90,3 +90,17 @@ func (p *Polygon) SetSRID(srid int) *Polygon {
 func (p *Polygon) Swap(p2 *Polygon) {
 	*p, *p2 = *p2, *p
 }
+
+// Contains checks if polygon contains LinearRing.
+func (p *Polygon) Contains(lr *LinearRing) bool {
+	if lr.layout != p.layout {
+		return false
+	}
+	mRing := p.LinearRing(0)
+	for _, coord := range lr.Coords() {
+		if !mRing.ContainCoord(&coord) {
+			return false
+		}
+	}
+	return true
+}
